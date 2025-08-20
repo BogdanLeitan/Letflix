@@ -1,10 +1,14 @@
 const express = require("express");
 const path = require("path");
+const mongodb = require("mongodb");
 
 const app = express();
 const PORT = 5000;
 
-app.get("/", function(req, res){
+const url = "mongodb://localhost:27017/";
+const client = new mongodb.MongoClient(url);
+
+app.get("/profiles", function(req, res){
     res.sendFile(path.join(__dirname, "Profiles", "profiles.html"));
 });
 
@@ -25,6 +29,26 @@ app.get("/Profiles/assets/logo.png", function(req, res){
     res.sendFile(path.join(__dirname, "Profiles", "assets", "logo.png"));
 });
 
+app.get("/Letflix/:id", async function(req, res){
+    const exist = await validateUser(req.params.id);
+    if(exist){
+        res.sendFile(path.join(__dirname, "Moviepage", "moviepage.html"));
+    } else{
+        res.send("No user found!");
+    }
+});
+
 app.listen(PORT, function(){
     console.log(`Letflix merge pe portul ${PORT}`);
 });
+
+async function validateUser(USER){
+    await client.connect();
+
+    const DB = await client.db("Letflix").collection("Users");
+    const name = await DB.findOne({User: USER});
+
+    await client.close();
+
+    if(name) return true; else return false;
+}
