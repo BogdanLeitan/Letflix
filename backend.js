@@ -1,8 +1,6 @@
 const express = require("express");
 const path = require("path");
 const mongodb = require("mongodb");
-let FileServe = require("./fileServe.js");
-let dbManager = require("./dbManager.js");
 
 const app = express();
 const url = "mongodb://localhost:27017/";
@@ -28,6 +26,16 @@ app.get("/Profiles/assets/newIcon.png", function(req, res){
     
 app.get("/Profiles/assets/logo.png", function(req, res){
     res.sendFile(path.join(__dirname, "Profiles", "assets", "logo.png"));
+});
+
+//Letflix user
+app.get("/Moviepage/logo.png", function(req, res){
+    res.sendFile(path.join(__dirname, "Moviepage" , "image.png"));
+});
+
+app.get("/Moviepage/bar.css", function(req, res){
+    res.setHeader("Content-type", "text/css");
+    res.sendFile(path.join(__dirname, "Moviepage", "bar.css"));
 });
 
 //verify user
