@@ -21,7 +21,7 @@ async function sendData(email, password){
         });
 
         if(!response.ok){
-            throw new Error("Conexiune esuata");
+            throw new Error("Conexiune esuata!");
         }
 
         const results = await response.json();
