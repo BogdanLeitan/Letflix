@@ -21,13 +21,41 @@ async function sendData(email, password){
         });
 
         if(!response.ok){
-            throw new Error("Conexiune esuala");
+            throw new Error("Conexiune esuata");
         }
 
-        const result = await response.json();
-        console.log(result);
-
+        const results = await response.json();
+        statusCheck(results);
+        
     } catch(error){
         console.log(error);
+    }
+}
+
+function statusCheck(results){
+    switch(results.status){
+        case "ok":
+            console.log("User found");
+        break;
+
+        case "no user found":
+            console.log("no user found");
+        break;
+
+        case "not an email":
+            console.log("not an email");
+        break;
+
+        case "field empty":
+            console.log("field empty");
+        break;
+
+        case "email empty":
+            console.log("email empty");
+        break;
+
+        case "password empty":
+            console.log("password empty");
+        break;
     }
 }

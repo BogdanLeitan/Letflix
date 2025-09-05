@@ -1,10 +1,10 @@
-function signin(app, path, express){
+function signin(app, path, express, db){
     app.use(express.json());
 
     //post
     app.post("/send/data", function(req, res){
         let user = req.body;
-        verifyField(user.Email, user.Password, res);
+        verifyField(user.Email, user.Password, res, db);
     });
 
     //get
@@ -37,7 +37,7 @@ function signin(app, path, express){
     });
 }
 
-function verifyField(email, password, res){
+function verifyField(email, password, res, db){
     let emailFormat = false;
     let emailFormatString = "";
 
@@ -56,14 +56,21 @@ function verifyField(email, password, res){
     }
 
     if(emailFormatString == "@gmail.com"){
-        verifyDatainDB(email, password, res);
+        verifyDatainDB(email, password, res, db);
     } else{
         res.json({status: "not an email"});
     }
 }
 
-function verifyDatainDB(email, password, res){
+async function verifyDatainDB(email, password, res, db){
+    const users = db.collection("users");
+    const result = await users.findOne({ Email: email, Password: password});
     
+    if(!result){
+        res.json({status: "no user found"});
+    } else{
+        res.json({status: "ok"});
+    }
 }
 
 module.exports = { signin }
