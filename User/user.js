@@ -42,10 +42,15 @@ function verifyField(email, password, res, db){
     let emailFormatString = "";
 
     if(email == ""){
-        email == "" && password == "" ? res.json({status: "field empty"}) : 
-                                        res.json({status: "email empty"})
+        if(email == "" && password == ""){
+            return res.json({status: "field empty"});
+        } else{
+            return res.json({status: "email empty"});
+        }                               
     }
-    else if(password == ""){res.json({status: "password empty"});}
+    else if(password == ""){
+        return res.json({status: "password empty"});
+    }
 
     for (let em of email){
         em == "@" && (emailFormat = true);
@@ -58,18 +63,22 @@ function verifyField(email, password, res, db){
     if(emailFormatString == "@gmail.com"){
         verifyDatainDB(email, password, res, db);
     } else{
-        res.json({status: "not an email"});
+        return res.json({status: "not an email"});
     }
 }
 
 async function verifyDatainDB(email, password, res, db){
     const users = db.collection("users");
-    const result = await users.findOne({ Email: email, Password: password});
+    
+    const result = await users.findOne(
+        { Email: email, Password: password },
+        { Cod: 1, _id: 0 }
+    );
     
     if(!result){
-        res.json({status: "no user found"});
+        return res.json({status: "no user found"});
     } else{
-        res.json({status: "ok"});
+        return res.json({status: "ok", Cod: result.Cod});
     }
 }
 

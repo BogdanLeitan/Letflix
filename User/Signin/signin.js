@@ -33,29 +33,46 @@ async function sendData(email, password){
 }
 
 function statusCheck(results){
+    let email = document.getElementById("email_field");
+    let password = document.getElementById("password_field");
+
     switch(results.status){
         case "ok":
-            console.log("User found");
+            window.location.href = `/${results.Cod}`;
         break;
 
         case "no user found":
-            console.log("no user found");
+            email.style.border = "1px solid red";
+            password.style.border = "1px solid red";
+            pushElement("No user found");
         break;
 
         case "not an email":
-            console.log("not an email");
+            email.style.border = "1px solid red";
+            pushElement("Not an Email");
         break;
 
         case "field empty":
-            console.log("field empty");
+            email.style.border = "1px solid red";
+            password.style.border = "1px solid red";
+            pushElement("Field Empty");
         break;
 
         case "email empty":
-            console.log("email empty");
+            email.style.border = "1px solid red";
+            pushElement("Email Empty");
         break;
 
         case "password empty":
-            console.log("password empty");
+            pushElement("Password Empty");
+            password.style.border = "1px solid red";
         break;
     }
+}
+
+function pushElement(text){
+    let problem = document.getElementById("problem");
+    
+    problem.textContent = text;
+    problem.style.color = "red";
 }
