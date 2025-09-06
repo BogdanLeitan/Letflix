@@ -43,10 +43,7 @@ function signin(app, path, express, db){
 }
 
 //SIGNIN functions
-function verifyFieldSignin(email, password, res, db){
-    let emailFormat = false;
-    let emailFormatString = "";
-
+async function verifyFieldSignin(email, password, res, db){
     if(email == ""){
         if(email == "" && password == ""){
             return res.json({status: "field empty"});
@@ -62,30 +59,20 @@ function verifyFieldSignin(email, password, res, db){
         return res.json({status: "not an email"});
     }
 
-    verifyDatainDB(email, password, res, db);
-}
-
-async function verifyDatainDB(email, password, res, db){
-    const collection = db.collection("users");
+    let cod = await SearchinDB(email, password, db, "signin");
     
-    const push = await collection.findOne(
-        { Email: email, Password: password },
-        { Cod: 1, _id: 0 }
-    );
-    
-    if(!push){
+    if(!cod){
         return res.json({status: "no user found"});
-    } else{
-        return res.json({status: "ok", Cod: push.Cod});
     }
+    return res.json({status: "ok", Cod: cod});
 }
 
 //SIGNUP functions
-function verifyFieldSignup(email, Pcreated, Pconfirmed, res, db){
+async function verifyFieldSignup(email, Pcreated, Pconfirmed, res, db){
     let fields = {
-        email: !email || email.trim() == "",
-        Pcreated: !Pcreated || Pcreated.trim() == "",
-        Pconfirmed: !Pconfirmed || Pconfirmed.trim() == ""
+        emailField: !email || email.trim() == "",
+        createdPassword: !Pcreated || Pcreated.trim() == "",
+        confirmedPassword: !Pconfirmed || Pconfirmed.trim() == ""
     };
 
     let emptyField = Object.values(fields).some(value => value === true);
@@ -102,10 +89,15 @@ function verifyFieldSignup(email, Pcreated, Pconfirmed, res, db){
         return res.json({status: "not the same password"});
     }
 
+    if(await SearchinDB(email, Pcreated, db, "signup")){
+        return res.json({status: "Account allready exists"});
+    }
+
     const cod = createUserCod(Pcreated);
     POSTinDB(email, Pcreated, cod, res, db);
 }
 
+//DATA BASE operations
 async function POSTinDB(email, Pcreated, cod, res, db){
     const collection = db.collection("users");
 
@@ -123,6 +115,38 @@ async function POSTinDB(email, Pcreated, cod, res, db){
     return res.json({status: "ok"});
 }
 
+async function SearchinDB(email, password, db, type){
+    const collection = db.collection("users");
+    let verify = null;
+
+    switch(type){
+        case "signin":
+            verify = await collection.findOne(
+                {
+                    Email: email,
+                    Password: password
+                },
+                { 
+                    Cod: 1, _id: 0 
+                }
+            );
+            if(verify){return verify.Cod;}
+        break;
+
+        case "signup":
+            verify = await collection.findOne(
+                {
+                    Email: email,
+                }
+            );
+        break;
+    }
+
+    if(!verify){
+        return false;
+    }
+    return true;
+}
 //functions
 function createUserCod(Pcreated){
     let characters = ["q", "w", "e", "r", "t", "y", "i", "a", "d", "f", 
